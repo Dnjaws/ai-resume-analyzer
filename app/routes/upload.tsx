@@ -28,8 +28,14 @@ const Upload = () => {
         const uploadedFile = await fs.upload([file]);
         if (!uploadedFile) return setStatusText('Error failed to upload');
 
-        setStatusText('Conveting to image...');
+        setStatusText('Converting to image...');
         const imageFile = await convertPdfToImage(file);
+
+        console.log("IMAGE FILE RESULT :", imageFile);
+        console.log("IMAGE FILE :", imageFile.file);
+        console.log("IMAGE URL :", imageFile.imageUrl);
+        console.log("ERROR :", imageFile.error);
+
         if (!imageFile.file) return setStatusText('Error : failed to convert PDF!');
 
         setStatusText('Uploading the PDF...');
@@ -43,7 +49,7 @@ const Upload = () => {
             resumePath: uploadedFile.path,
             imagePath: uploadedImage.path,
             companyName, jobTitle, jobDescription,
-            feedback: '',
+            feedback: null,
         }
         await kv.set(`resume: ${uuid}`, JSON.stringify(data));
         setStatusText('Analyzing...');
@@ -58,6 +64,8 @@ const Upload = () => {
         await kv.set(`resume: ${uuid}`, JSON.stringify(data));
         setStatusText('Analysis complete! redirecting...');
         console.log(data);
+
+        navigate(`/resume/${uuid}`);
     }
     const handleSubmit = (e : React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -83,7 +91,7 @@ const Upload = () => {
                     {isProcessing ? (
                         <>
                             <h2>{statusText}</h2>
-                            <img src="/images/resume-scan.gif" className="w-full"/>
+                            <img src="/images/resume-scan.gif" alt="Loading Gif" className="w-full"/>
                         </>
                     ) : (
                         <h2>Drop your resume for an ATS score and improvement tips</h2>
